@@ -11,7 +11,6 @@ module Phase6
 
     # checks if pattern matches path and method matches request method
     def matches?(req)
-      # byebug
       pattern.match(req.path) && http_method == req.request_method
     end
 
@@ -58,7 +57,7 @@ module Phase6
 
     # either throw 404 or call run on a matched route
     def run(req, res)
-      route = Router.new.match(req)
+      route = self.match(req)
       route ? route.run : res.status = 404
     end
   end
