@@ -1,4 +1,6 @@
 require 'byebug'
+require 'better_errors'
+require 'binding_of_caller'
 
 module Phase6
   class Route
@@ -11,12 +13,13 @@ module Phase6
 
     # checks if pattern matches path and method matches request method
     def matches?(req)
-      pattern.match(req.path) && http_method == req.request_method
+      pattern.match(req.path) && http_method.to_s == req.request_method.downcase.to_s
     end
 
     # use pattern to pull out route params (save for later?)
     # instantiate controller and call controller action
     def run(req, res)
+      puts "HELLO FDGDDAG"
       route_params = {}
       match_data = pattern.match(req.path)
       route_params[:id] = match_data["id"] if match_data.names.include?("id")
@@ -40,6 +43,7 @@ module Phase6
     # evaluate the proc in the context of the instance
     # for syntactic sugar :)
     def draw(&proc)
+      self.instance_eval(&proc)
     end
 
     # make each of these methods that
@@ -58,7 +62,7 @@ module Phase6
     # either throw 404 or call run on a matched route
     def run(req, res)
       route = self.match(req)
-      route ? route.run : res.status = 404
+      route ? route.run(req, res) : res.status = 404
     end
   end
 end
